@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .login-logo {
+      margin-bottom: 20px;
+    }
+
+    .login-logo img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .input-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .input-container input {
+      width: 100%;
+      padding: 12px 40px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .input-container .material-icons {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #1e88e5;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .login-button:hover {
+      background-color: #1565c0;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    @media (max-width: 400px) {
+      .login-container {
+        padding: 20px;
+      }
+
+      .login-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-logo">
+      <img src="https://play-lh.googleusercontent.com/bw4Jn7FrLiG81kjk1VxrFTbfg3YTEFPu2s1rsPAYuuqv4tk1b1q6QTTnfVpEqfkbIg" alt="Logo de Login">
+    </div>
+    <div class="login-title">Login API</div>
+    <form id="loginForm">
+      <div class="input-container">
+        <span class="material-icons">person</span>
+        <input type="text" id="username" placeholder="Usuário" required>
+      </div>
+      <div class="input-container">
+        <span class="material-icons">lock</span>
+        <input type="password" id="password" placeholder="Senha" required>
+      </div>
+      <button class="login-button" type="submit">Entrar</button>
+      <div class="error-message" id="errorMessage">Credenciais inválidas. Tente novamente.</div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const credentials = btoa(`${username}:${password}`);
+
+      try {
+        const response = await fetch('/toggle-api', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${credentials}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const newStatus = result.apiOnline ? 'online' : 'offline';
+          window.location.href = `index.html?status=${newStatus}`;
+        } else {
+          document.getElementById('errorMessage').style.display = 'block';
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao conectar ao servidor.');
+      }
+    });
+  </script>
+</body>
+</html>

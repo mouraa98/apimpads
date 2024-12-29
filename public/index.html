@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mpads Server</title>
+  <link rel="icon" type="image/png" href="https://play-lh.googleusercontent.com/bw4Jn7FrLiG81kjk1VxrFTbfg3YTEFPu2s1rsPAYuuqv4tk1b1q6QTTnfVpEqfkbIg" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding-top: 60px; /* Compensa a barra fixa */
+      overflow-x: hidden;
+    }
+    .toggle-button.add-data {
+  background-color: #28a745;
+  color: white;
+  margin-left: 10px;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-button.add-data:hover {
+  background-color: #218838;
+}
+    .toggle-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .online {
+      background-color: blue;
+    }
+    .offline {
+      background-color: red;
+    }
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .navbar img {
+      max-height: 40px;
+      height: auto;
+    }
+
+    .navbar .title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin-left: 10px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 350px;
+      padding: 25px;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .header {
+      font-size: 20px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 15px;
+    }
+
+    .status {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      text-transform: uppercase;
+      background-color: #28a745;
+      color: #fff;
+      box-shadow: 0px 4px 10px rgba(40, 167, 69, 0.3);
+      animation: pulse 2s infinite; /* Animação de pulso */
+    }
+
+    .status-offline {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 20px 0;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      text-transform: uppercase;
+      background-color: #a72828;
+      color: #fff;
+      box-shadow: 0px 4px 10px rgba(167, 40, 40, 0.3);
+      animation: pulse 2s infinite; /* Animação de pulso */
+    }
+
+    .status-icon {
+      font-size: 50px;
+      margin-bottom: 20px;
+    }
+
+    .routes-list {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .routes-list li {
+      margin: 12px 0;
+    }
+
+    .routes-list li a {
+      color: #007bff;
+      font-size: 16px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .routes-list li a:hover {
+      color: #28a745;
+    }
+
+    .routes-list li a .material-icons {
+      font-size: 22px;
+    }
+
+    .ip-info p {
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .data-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .data-row span {
+      font-size: 24px; /* Ajuste do tamanho do ícone */
+      color: #555;
+    }
+
+    .data-row p {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .toggle-button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    .toggle-button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Animação de pulso */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* Media Queries para dispositivos móveis */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 18px;
+      }
+
+      .status {
+        font-size: 20px;
+        padding: 8px 16px;
+      }
+
+      .status-icon {
+        font-size: 40px;
+      }
+
+      .routes-list li a {
+        font-size: 14px;
+      }
+
+      .card {
+        max-width: 100%;
+        padding: 20px;
+      }
+
+      .container {
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .title {
+        font-size: 16px;
+      }
+
+      .status {
+        font-size: 18px;
+        padding: 6px 12px;
+      }
+
+      .status-icon {
+        font-size: 35px;
+      }
+
+      .routes-list li a {
+        font-size: 12px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .container {
+        gap: 15px;
+      }
+
+      .navbar img {
+        max-height: 35px;
+      }
+
+      .navbar .title {
+        font-size: 14px;
+        margin-left: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar com a logo e o título -->
+<div class="navbar">
+  <img src="https://play-lh.googleusercontent.com/bw4Jn7FrLiG81kjk1VxrFTbfg3YTEFPu2s1rsPAYuuqv4tk1b1q6QTTnfVpEqfkbIg" alt="Logo do Monitoramento">
+  <span class="title">Mpads Server</span>
+</div>
+
+<div class="container">
+  <!-- Card 1: Status da API -->
+  <div class="card" id="statusCard">
+    <i class="material-icons status-icon" id="statusIcon">cloud_done</i>
+    <div class="header">Status da API</div>
+    <div class="status" id="status"></div>
+    <div class="ip-info">
+      <p id="serverIp">IP do servidor: Carregando...</p>
+      <p id="userIp">IP do usuário: Carregando...</p>
+    </div>
+  </div>
+
+  <!-- Card 2: Links e Informações Adicionais -->
+  <div class="card">
+    <div class="header">Rotas</div>
+    <ul class="routes-list">
+      <li>
+        <a href="/v1/mp/all"><span class="material-icons">link</span>LISTA JSON API</a>
+      </li>
+      <li>
+        <a href="/status"><span class="material-icons">info</span>STATUS API</a>
+      </li>
+      <li>
+        <a href="/count-zip-files"><span class="material-icons">archive</span>ARQUIVOS</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Card 3: Requisições e Controle da API -->
+  <div class="card" id="requestCard">
+    <div class="header">Dados e Controle</div>
+    <div class="data-row">
+      <span class="material-icons">language</span>
+      <p>Requisições: <span id="requestCountDisplay">Carregando...</span></p>
+    </div>
+    <div class="data-row">
+      <span class="material-icons">archive</span>
+      <p>Arquivos: <span id="zipCountDisplay">Carregando...</span></p>
+    </div>
+    <button id="toggleApiButton" class="toggle-button online" onclick="redirectToLogin()">Desativar API</button>
+  <button id="addDataButton" class="toggle-button add-data" onclick="redirectToAddData()">Adicionar Dados</button>
+  </div>
+</div>
+
+<script>
+  // Verificar token antes de carregar o conteúdo
+  const token = localStorage.getItem('authToken');
+
+  fetch('/', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Token inválido');
+      }
+    })
+    .catch(() => {
+      // Redirecionar para a página de login se o token for inválido
+      window.location.href = '/login.html';
+    });
+  // Função para buscar o status da API
+  function fetchStatus() {
+    fetch('/status')
+      .then(response => response.json())
+      .then(data => {
+        const statusElement = document.getElementById('status');
+        const statusIcon = document.getElementById('statusIcon');
+        
+        if (data.status === 'online') {
+          statusElement.textContent = 'Online';
+          statusElement.classList.remove('status-offline');
+          statusElement.classList.add('status');
+          statusIcon.textContent = 'cloud_done';
+        } else {
+          statusElement.textContent = 'Offline';
+          statusElement.classList.add('status-offline');
+          statusElement.classList.remove('status');
+          statusIcon.textContent = 'cloud_off';
+        }
+      })
+      .catch(err => {
+        console.error('Erro ao verificar status da API:', err);
+        const statusElement = document.getElementById('status');
+        const statusIcon = document.getElementById('statusIcon');
+        statusElement.textContent = 'Erro ao verificar status';
+        statusElement.classList.add('status-offline');
+        statusElement.classList.remove('status');
+        statusIcon.textContent = 'error';
+      });
+  }
+
+  // Função para buscar IPs do servidor e usuário
+  function fetchIps() {
+    fetch('/get-ips')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('serverIp').textContent = 'IP do servidor: ' + data.serverIp;
+        document.getElementById('userIp').textContent = 'IP do usuário: ' + data.userIp;
+      })
+      .catch(err => {
+        console.error('Erro ao obter IPs:', err);
+      });
+  }
+
+  // Função para buscar o contador de requisições
+  function fetchRequestCount() {
+    fetch('/request-count')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('requestCountDisplay').textContent = data.requests_count;
+      })
+      .catch(err => {
+        console.error('Erro ao obter contador:', err);
+      });
+  }
+
+  // Função para buscar o número de arquivos ZIP
+  function fetchZipCount() {
+    fetch('/count-zip-files')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('zipCountDisplay').textContent = data.zipCount;
+      })
+      .catch(err => {
+        console.error('Erro ao obter contador de arquivos ZIP:', err);
+      });
+  }
+
+  let apiOnline = true;
+
+  function toggleApi() {
+    fetch('/toggle-api', { method: 'POST' })
+      .then(response => response.json())
+      .then(data => {
+        apiOnline = data.apiOnline;
+        const toggleApiButton = document.getElementById('toggleApiButton');
+        toggleApiButton.textContent = apiOnline ? 'Desativar API' : 'Ativar API';
+        fetchStatus(); // Atualiza o status no frontend
+      })
+      .catch(err => console.error('Erro ao alternar API:', err));
+  }
+
+  // Chama as funções para verificar status da API, buscar IPs e contagem de arquivos
+  setInterval(() => {
+    fetchStatus();
+    fetchIps();
+    fetchRequestCount();
+    fetchZipCount();
+  }, 5000); // Atualiza a cada 5 segundos
+
+  // Inicializa ao carregar a página
+  fetchStatus();
+  fetchIps();
+  fetchRequestCount();
+  fetchZipCount();
+
+  
+
+function redirectToLogin() {
+  const action = apiOnline ? 'desativar' : 'ativar';
+  window.location.href = `login.html?action=${action}`;
+}
+
+async function updateButtonStatus() {
+  const response = await fetch('/status');
+  const data = await response.json();
+  apiOnline = data.status === 'online';
+
+  const button = document.getElementById('toggleApiButton');
+  if (apiOnline) {
+    button.textContent = 'Desativar API';
+    button.classList.add('online');
+    button.classList.remove('offline');
+  } else {
+    button.textContent = 'Ativar API';
+    button.classList.add('offline');
+    button.classList.remove('online');
+  }
+}
+
+// Atualiza o status do botão ao carregar a página
+updateButtonStatus();
+
+// Função para redirecionar ao login para adição de dados
+// Função para redirecionar ao login para adição de dados
+// Função para redirecionar ao login para adição de dados
+function redirectToAddData() {
+    const username = prompt("Digite seu usuário:");
+    const password = prompt("Digite sua senha:");
+
+    if (!username || !password) {
+      alert("Usuário e senha são obrigatórios!");
+      return;
+    }
+
+    const credentials = btoa(`${username}:${password}`);
+
+    fetch('/authenticate', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
+        if (response.ok) {
+          alert("Autenticação bem-sucedida!");
+          // Armazenar o token de autenticação no sessionStorage
+          sessionStorage.setItem('authToken', `Basic ${credentials}`);
+          window.location.href = '/add-data'; // Redirecionar após login
+        } else {
+          alert("Credenciais inválidas ou erro na autenticação.");
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        alert("Erro ao conectar ao servidor.");
+    });
+}
+
+
+</script>
+
+</body>
+</html>
